@@ -10,7 +10,7 @@ import Foundation
 let kToDoTitle                  =   "To Do"
 let kTagTitle                   =    "Tag"
 let KSearchPlaceHolder          =    "Search by tags"
-let kCreateTitle                =    "Create To DO"
+let kCreateTitle                =    "Create To Do"
 let kTaskTitle                  =    "Task Name"
 let kPriorityTitle              =     "Priority"
 

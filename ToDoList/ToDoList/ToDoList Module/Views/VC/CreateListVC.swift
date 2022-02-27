@@ -69,7 +69,6 @@ class CreateListVC: UIViewController {
         setSegementValues()
 
         NotificationCenter.default.addObserver(self, selector: #selector(CreateListVC.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(CreateListVC.keyboardWillHide), name: UIResponder.keyboardWillShowNotification, object: nil)
         let tapGesture = UITapGestureRecognizer(target: self,action: #selector(hideKeyboard))
         tapGesture.cancelsTouchesInView = false
         self.view.addGestureRecognizer(tapGesture)
@@ -84,6 +83,7 @@ class CreateListVC: UIViewController {
     }
     
     @objc private func hideKeyboard() {
+        self.view.frame.origin.y = 0
         self.view.resignFirstResponder()
         self.view.endEditing(true)
     }
@@ -92,14 +92,7 @@ class CreateListVC: UIViewController {
         guard let userInfo = notification.userInfo else {return}
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue
-        self.view.frame.origin.y -= keyboardFrame.height
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        guard let userInfo = notification.userInfo else {return}
-        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
-        let keyboardFrame = keyboardSize.cgRectValue
-        self.view.frame.origin.y += keyboardFrame.height
+        self.view.frame.origin.y = -keyboardFrame.height
     }
     
     @IBAction func segmentSelectionChanged(_ sender: UISegmentedControl) {
@@ -119,6 +112,7 @@ extension CreateListVC: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        hideKeyboard()
         return true
     }
 }

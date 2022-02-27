@@ -19,6 +19,7 @@ class ToDoListVM: NSObject {
     var selectedTabBar      = 0
     var reloadMainTableView :    (() -> Void)?
     var reloadTagTableView :    (() -> Void)?
+    var isKeyBoardPresented = false
     
     override init() {
         super.init()
