@@ -10,6 +10,7 @@ import UIKit
 class ToDoListVM: NSObject {
 
     var toDoListDetail      = [ToDoList]()
+    var totalRecord         = 0
     var tagListViewDetails  = [ToDoList]()
     var tagHeaderList       = [String]()
     var filteredTagList     = [TagListDetails]()
@@ -25,7 +26,8 @@ class ToDoListVM: NSObject {
      // Setting to do list details for loading main screen
     func setTodoListDetails(_ completionHandler: @escaping (_ complete: Bool) -> Void) {
         fetchToDoList(url: "http://167.71.235.242:3000/todo?_page=\(pageCount)&_limit=15&author=Kishore") { list in
-            self.toDoListDetail.append(contentsOf: list)
+            self.toDoListDetail.append(contentsOf: list.data)
+            self.totalRecord    = list.totalRecords
             self.filterMainListBasedOnPriority()
             completionHandler(self.toDoListDetail.count != 0)
         }
@@ -34,7 +36,7 @@ class ToDoListVM: NSObject {
     //Setting tag list details data
     func setTagListDetails(_ completionHandler: @escaping (_ complete: Bool) -> Void) {
         fetchToDoList(url: "http://167.71.235.242:3000/todo?_page=1&_limit=1000&author=Kishore") { list in
-            self.tagListViewDetails = list
+            self.tagListViewDetails = list.data
             self.filterTagListBasedOnPriority()
             self.setHeaderTitles(self.tagListViewDetails)
             self.filterTaskListByTag()
@@ -45,7 +47,7 @@ class ToDoListVM: NSObject {
     // filter main screen data by search
     func toDoListFilterBySearch(searchText: String,_ completionHandler: @escaping (_ complete: Bool) -> Void) {
         fetchToDoList(url: "http://167.71.235.242:3000/todo?_page=1&_limit=1500&author=Kishore&tag=\(searchText)") { list in
-            self.toDoListDetail = list
+            self.toDoListDetail = list.data
             self.filterMainListBasedOnPriority()
             completionHandler(self.toDoListDetail.count != 0)
         }
@@ -54,7 +56,7 @@ class ToDoListVM: NSObject {
     // filter tag list data by search
     func tagListFilterBySearch(searchText: String,_ completionHandler: @escaping (_ complete: Bool) -> Void) {
         fetchToDoList(url: "http://167.71.235.242:3000/todo?_page=1&_limit=1500&author=Kishore&tag=\(searchText)") { list in
-            self.tagListViewDetails = list
+            self.tagListViewDetails = list.data
             self.setHeaderTitles(self.tagListViewDetails)
             self.filterTaskListByTag()
             completionHandler(self.tagListViewDetails.count != 0)
@@ -62,14 +64,14 @@ class ToDoListVM: NSObject {
     }
     
     // fetching data from API call
-    func fetchToDoList(url: String,_ completionHandler: @escaping (_ list: [ToDoList]) -> Void) {  //http://167.71.235.242:3000/todo?_page=1&_limit=15&author=Ranjith
+    func fetchToDoList(url: String,_ completionHandler: @escaping (_ list: ToDoListDetails) -> Void) {  //http://167.71.235.242:3000/todo?_page=1&_limit=15&author=Ranjith
         var request = URLRequest(url: URL(string: String(format: url))!)
         request.httpMethod = "GET"
         URLSession.shared.dataTask(with: request, completionHandler: { data, response, error -> Void in
             do {
                 let jsonDecoder = JSONDecoder()
                 let responseModel = try jsonDecoder.decode(ToDoListDetails.self, from: data!)
-                completionHandler(responseModel.data)
+                completionHandler(responseModel)
             } catch {
                 print(error.localizedDescription)
             }

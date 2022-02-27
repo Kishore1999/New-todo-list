@@ -25,12 +25,19 @@ class TagListViewVC: UIViewController {
         super.viewDidLoad()
         initialSetUp()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        tagListTableView.reloadData()
+    }
 
     func initialSetUp() {
         navigationController?.navigationBar.topItem?.title = kTagTitle
-        viewModel.setTagListDetails() { _ in
-            DispatchQueue.main.async {
-                self.tagListTableView.reloadData()
+        viewModel.setTagListDetails() { status in
+            if status {
+                DispatchQueue.main.async {
+                    self.tagListTableView.reloadData()
+                }
             }
         }
         viewModel.reloadTagTableView = { [weak self] in
@@ -78,17 +85,21 @@ extension TagListViewVC: UITableViewDelegate, UITableViewDataSource {
 extension TagListViewVC: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
-            viewModel.setTagListDetails() { _ in
-                DispatchQueue.main.async {
-                    self.tagListTableView.reloadData()
+            viewModel.setTagListDetails() { status in
+                if status {
+                    DispatchQueue.main.async {
+                        self.tagListTableView.reloadData()
+                    }
                 }
             }
         }
     }
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        viewModel.tagListFilterBySearch(searchText: searchBar.text ?? "") { _ in
-            DispatchQueue.main.async {
-                self.tagListTableView.reloadData()
+        viewModel.tagListFilterBySearch(searchText: searchBar.text ?? "") { status in
+            if status {
+                DispatchQueue.main.async {
+                    self.tagListTableView.reloadData()
+                }
             }
         }
         searchBar.resignFirstResponder()

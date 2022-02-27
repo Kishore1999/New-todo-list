@@ -23,11 +23,18 @@ class ToDoMainVC: UIViewController {
         initialSetUp()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        mainListTableView.reloadData()
+    }
+    
     func initialSetUp() {
         navigationController?.navigationBar.topItem?.title = kToDoTitle
-        viewModel.setTodoListDetails() { _ in
-            DispatchQueue.main.async {
-                self.mainListTableView.reloadData()
+        viewModel.setTodoListDetails() { status in
+            if status {
+                DispatchQueue.main.async {
+                    self.mainListTableView.reloadData()
+                }
             }
         }
         viewModel.reloadMainTableView = { [weak self] in
@@ -65,11 +72,13 @@ extension ToDoMainVC: UITableViewDelegate, UITableViewDataSource {
         cell.didTapOnTagButton = { [weak self] in
             self?.presentTagListVC()
         }
-        if viewModel.toDoListDetail.count - 1 == indexPath.row && viewModel.toDoListDetail.count > 15 {
+        if viewModel.toDoListDetail.count - 1 == indexPath.row && viewModel.toDoListDetail.count >= 15 && viewModel.toDoListDetail.count < viewModel.totalRecord {
             viewModel.incrementPageCount()
-            viewModel.setTodoListDetails() { _ in
-                DispatchQueue.main.async {
-                    self.mainListTableView.reloadData()
+            viewModel.setTodoListDetails() { status in
+                if status {
+                    DispatchQueue.main.async {
+                        self.mainListTableView.reloadData()
+                    }
                 }
             }
         }
@@ -85,9 +94,11 @@ extension ToDoMainVC: UISearchBarDelegate {
         if searchText.isEmpty {
             viewModel.toDoListDetail.removeAll()
             viewModel.pageCount = 0
-            viewModel.setTodoListDetails() { _ in
-                DispatchQueue.main.async {
-                    self.mainListTableView.reloadData()
+            viewModel.setTodoListDetails() { status in
+                if status {
+                    DispatchQueue.main.async {
+                        self.mainListTableView.reloadData()
+                    }
                 }
             }
         }
